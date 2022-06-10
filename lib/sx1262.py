@@ -1,7 +1,8 @@
 from _sx126x import *
 from sx126x import SX126X
 
-_SX126X_PA_CONFIG_SX1262 = const(0x00)
+_SX126X_PA_CONFIG_SX1262 = 0x00
+
 
 class SX1262(SX126X):
     TX_DONE = SX126X_IRQ_TX_DONE
@@ -16,15 +17,41 @@ class SX1262(SX126X):
     PREAMBLE_DETECT_32 = SX126X_GFSK_PREAMBLE_DETECT_32
     STATUS = ERROR
 
-    def __init__(self, cs, irq, rst, gpio, clk='P10', mosi='P11', miso='P14'):
+    def __init__(self, cs, irq, rst, gpio, clk="P10", mosi="P11", miso="P14"):
         super().__init__(cs, irq, rst, gpio, clk, mosi, miso)
         self._callbackFunction = self._dummyFunction
 
-    def begin(self, freq=434.0, bw=125.0, sf=9, cr=7, syncWord=SX126X_SYNC_WORD_PRIVATE,
-              power=14, currentLimit=60.0, preambleLength=8, implicit=False, implicitLen=0xFF,
-              crcOn=True, txIq=False, rxIq=False, tcxoVoltage=1.6, useRegulatorLDO=False,
-              blocking=True):
-        state = super().begin(bw, sf, cr, syncWord, currentLimit, preambleLength, tcxoVoltage, useRegulatorLDO, txIq, rxIq)
+    def begin(
+        self,
+        freq=434.0,
+        bw=125.0,
+        sf=9,
+        cr=7,
+        syncWord=SX126X_SYNC_WORD_PRIVATE,
+        power=14,
+        currentLimit=60.0,
+        preambleLength=8,
+        implicit=False,
+        implicitLen=0xFF,
+        crcOn=True,
+        txIq=False,
+        rxIq=False,
+        tcxoVoltage=1.6,
+        useRegulatorLDO=False,
+        blocking=True,
+    ):
+        state = super().begin(
+            bw,
+            sf,
+            cr,
+            syncWord,
+            currentLimit,
+            preambleLength,
+            tcxoVoltage,
+            useRegulatorLDO,
+            txIq,
+            rxIq,
+        )
         ASSERT(state)
 
         if not implicit:
@@ -49,14 +76,44 @@ class SX1262(SX126X):
 
         return state
 
-    def beginFSK(self, freq=434.0, br=48.0, freqDev=50.0, rxBw=156.2, power=14, currentLimit=60.0,
-                 preambleLength=16, dataShaping=0.5, syncWord=[0x2D, 0x01], syncBitsLength=16,
-                 addrFilter=SX126X_GFSK_ADDRESS_FILT_OFF, addr=0x00, crcLength=2, crcInitial=0x1D0F, crcPolynomial=0x1021,
-                 crcInverted=True, whiteningOn=True, whiteningInitial=0x0100,
-                 fixedPacketLength=False, packetLength=0xFF, preambleDetectorLength=SX126X_GFSK_PREAMBLE_DETECT_16,
-                 tcxoVoltage=1.6, useRegulatorLDO=False,
-                 blocking=True):
-        state = super().beginFSK(br, freqDev, rxBw, currentLimit, preambleLength, dataShaping, preambleDetectorLength, tcxoVoltage, useRegulatorLDO)
+    def beginFSK(
+        self,
+        freq=434.0,
+        br=48.0,
+        freqDev=50.0,
+        rxBw=156.2,
+        power=14,
+        currentLimit=60.0,
+        preambleLength=16,
+        dataShaping=0.5,
+        syncWord=[0x2D, 0x01],
+        syncBitsLength=16,
+        addrFilter=SX126X_GFSK_ADDRESS_FILT_OFF,
+        addr=0x00,
+        crcLength=2,
+        crcInitial=0x1D0F,
+        crcPolynomial=0x1021,
+        crcInverted=True,
+        whiteningOn=True,
+        whiteningInitial=0x0100,
+        fixedPacketLength=False,
+        packetLength=0xFF,
+        preambleDetectorLength=SX126X_GFSK_PREAMBLE_DETECT_16,
+        tcxoVoltage=1.6,
+        useRegulatorLDO=False,
+        blocking=True,
+    ):
+        state = super().beginFSK(
+            br,
+            freqDev,
+            rxBw,
+            currentLimit,
+            preambleLength,
+            dataShaping,
+            preambleDetectorLength,
+            tcxoVoltage,
+            useRegulatorLDO,
+        )
         ASSERT(state)
 
         state = super().setSyncBits(syncWord, syncBitsLength)
@@ -191,9 +248,9 @@ class SX1262(SX126X):
 
     def _receive(self, len_=0, timeout_en=False, timeout_ms=0):
         state = ERR_NONE
-        
+
         length = len_
-        
+
         if len_ == 0:
             length = SX126X_MAX_PACKET_LENGTH
 
@@ -211,9 +268,9 @@ class SX1262(SX126X):
                 data = data[:length]
 
         else:
-            return b'', state
+            return b"", state
 
-        return  bytes(data), state
+        return bytes(data), state
 
     def _transmit(self, data):
         if isinstance(data, bytes) or isinstance(data, bytearray):
@@ -246,7 +303,7 @@ class SX1262(SX126X):
             return bytes(data), state
 
         else:
-            return b'', state
+            return b"", state
 
     def _startTransmit(self, data):
         if isinstance(data, bytes) or isinstance(data, bytearray):
