@@ -5,17 +5,11 @@ from periphery import SPI
 class SX126X:
     def __init__(self, cs, irq, rst, gpio, clk="P10", mosi="P11", miso="P14"):
         self._irq = irq
-        # try:
-        #     self.spi = SPI(
-        #         0, mode=SPI.MASTER, baudrate=2000000, pins=(clk, mosi, miso)
-        #     )  # Pycom variant uPy
-        # except:
-        # TODO configure for periphery
-        self.spi = SPI(0, baudrate=2000000, pins=(clk, mosi, miso))
-        self.cs = Pin(cs, mode=Pin.OUT)
-        self.irq = Pin(irq, mode=Pin.IN)
-        self.rst = Pin(rst, mode=Pin.OUT)
-        self.gpio = Pin(gpio, mode=Pin.IN)
+        self.spi = SPI("/dev/spidev3.0", 0, 2000000)
+        self.cs = Pin(cs, direction=Pin.OUT)
+        self.irq = Pin(irq, direction=Pin.IN)
+        self.rst = Pin(rst, direction=Pin.OUT)
+        self.gpio = Pin(gpio, direction=Pin.IN)
 
         self._bwKhz = 0
         self._sf = 0
@@ -367,7 +361,7 @@ class SX126X:
         self.irq.irq(trigger=Pin.IRQ_RISING, handler=func)  # Generic variant uPy
 
     def clearDio1Action(self):
-        self.irq = Pin(self._irq, mode=Pin.IN)
+        self.irq = Pin(self._irq, direction=Pin.IN)
 
     def startTransmit(self, data, len_, addr=0):
         if len_ > SX126X_MAX_PACKET_LENGTH:
@@ -1489,12 +1483,10 @@ class SX126X:
         return ERR_NONE
 
     def SPIwriteCommand(self, cmd, cmdLen, data, numBytes, waitForBusy=True):
-        pass
-        # return self.SPItransfer(cmd, cmdLen, True, data, [], numBytes, waitForBusy)
+        return self.SPItransfer(cmd, cmdLen, True, data, [], numBytes, waitForBusy)
 
     def SPIreadCommand(self, cmd, cmdLen, data, numBytes, waitForBusy=True):
-        pass
-        # return self.SPItransfer(cmd, cmdLen, False, [], data, numBytes, waitForBusy)
+        return self.SPItransfer(cmd, cmdLen, False, [], data, numBytes, waitForBusy)
 
     def SPItransfer(
         self, cmd, cmdLen, write, dataOut, dataIn, numBytes, waitForBusy, timeout=5000
@@ -1508,16 +1500,31 @@ class SX126X:
                 self.cs.value(1)
                 return ERR_SPI_CMD_TIMEOUT
 
+        print("\nSTART:")
         for i in range(cmdLen):
-            # self.spi.write(cmd[i])
-            self.spi.transfer(cmd[i])
+            print(f"OUT:{cmd[i]} -- ", end="")
+            print(
+                f"OUT_bytes:{cmd[i].to_bytes(1, byteorder='big')} -- ",
+                end="",
+            )
+            beginIn_ = self.spi.transfer(cmd[i].to_bytes(1, byteorder="big"))
+            print(f"in_:{beginIn_}")
 
         status = 0
 
         if write:
+            print("WRITING")
             for i in range(numBytes):
                 # in_ = self.spi.read(1, write=dataOut[i])
-                in_ = self.spi.transfer(dataOut[i])
+                print(f"OUT:{dataOut[i]} -- ", end="")
+                print(
+                    f"OUT_bytes:{dataOut[i].to_bytes(1, byteorder='big', signed=dataOut[i]<0)} -- ",
+                    end="",
+                )
+                in_ = self.spi.transfer(
+                    dataOut[i].to_bytes(1, byteorder="big", signed=dataOut[i] < 0)
+                )
+                print(f"in_:{in_}")
 
                 if (
                     (in_[0] & 0b00001110) == SX126X_STATUS_CMD_TIMEOUT
@@ -1530,8 +1537,15 @@ class SX126X:
                     status = SX126X_STATUS_SPI_FAILED
                     break
         else:
+            print("READING")
             # in_ = self.spi.read(1, write=SX126X_CMD_NOP)
-            in_ = self.spi.transfer(SX126X_CMD_NOP)
+            print(f"OUT:{SX126X_CMD_NOP} -- ", end="")
+            print(
+                f"OUT_bytes:{SX126X_CMD_NOP.to_bytes(1, byteorder='big')} -- ",
+                end="",
+            )
+            in_ = self.spi.transfer(SX126X_CMD_NOP.to_bytes(1, byteorder="big"))
+            print(f"in_:{in_}")
 
             if (
                 (in_[0] & 0b00001110) == SX126X_STATUS_CMD_TIMEOUT
@@ -1544,7 +1558,9 @@ class SX126X:
             else:
                 for i in range(numBytes):
                     # dataIn[i] = self.spi.read(1, write=SX126X_CMD_NOP)[0]
-                    dataIn[i] = self.spi.transfer(SX126X_CMD_NOP)[0]
+                    dataIn[i] = self.spi.transfer(
+                        SX126X_CMD_NOP.to_bytes(1, byteorder="big")
+                    )[0]
 
         self.cs.value(1)
 

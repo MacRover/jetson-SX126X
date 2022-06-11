@@ -1,6 +1,5 @@
-from time import sleep, monotonic_ns
-from types import NoneType
-from typing import Union
+from time import sleep, monotonic
+from typing import Callable, Union
 import Jetson.GPIO as GPIO
 
 _MS_PER_NS = 1000000
@@ -12,11 +11,11 @@ _TICKS_HALFPERIOD = 268435456
 
 
 def ticks_ms():
-    return (monotonic_ns() // _MS_PER_NS) & _TICKS_MAX
+    return (int(monotonic() * 1e9) // _MS_PER_NS) & _TICKS_MAX
 
 
 def ticks_us():
-    return (monotonic_ns() // _US_PER_NS) & _TICKS_MAX
+    return (int(monotonic() * 1e9) // _US_PER_NS) & _TICKS_MAX
 
 
 def ticks_diff(end, start):
@@ -42,32 +41,43 @@ def yield_():
 
 
 class Pin:
-    IN: int = 0
-    OUT: int = 1
+    __INITIALIZED__: bool = False
+    IN: int = GPIO.IN
+    OUT: int = GPIO.OUT
+    HIGH: int = GPIO.HIGH
+    LOW: int = GPIO.LOW
     IRQ_RISING = None
 
     def __init__(
-        self, pinNumber: str, mode: int, initial_state: Union[int, bool] = 0
+        self,
+        pinNumber: Union[str, int],
+        direction: int,
+        initial_state=None,
     ) -> None:
         self.pinNumber = pinNumber
-        self.mode = mode
+        self.direction = direction
         self.state = initial_state
 
-        GPIO.setup(self.pinNumber, self.mode, initial=self.state)
+        if Pin.__INITIALIZED__ == False:
+            Pin.initialize()
 
-    def value(self, new_state: Union[int, bool, NoneType] = None) -> int:
+        if self.direction == Pin.IN:
+            GPIO.setup(self.pinNumber, self.direction, initial=self.state)
+        else:
+            GPIO.setup(self.pinNumber, self.direction, initial=self.state)
+
+    def value(self, new_state=None) -> int:
         """Set or get state of pin
 
         Args:
             state (Union[int, bool, NoneType], optional): 1=High, 0=Low, None=get current state. Defaults to None.
         """
-        if new_state is not None and self.mode == Pin.OUT:
+        if new_state is not None and self.direction == Pin.OUT:
             GPIO.output(self.pinNumber, new_state)
 
-        # return self.state
-        # return GPIO.input(self.pinNumber)
+        return GPIO.input(self.pinNumber)
 
-    def irq(trigger, handler: function = lambda: None):
+    def irq(trigger, handler: Callable = lambda: None):
         """Initiate interrupt callback
 
         Args:
@@ -75,7 +85,18 @@ class Pin:
             handler (_type_, optional): function to execute when interrupt trips. Defaults to lambda:None.
         """
         # handler()
+        print("UNINITIALIZED IRQ FUNCTION CALLED.")
         pass
+
+    @staticmethod
+    def initialize(mode=GPIO.BOARD):
+        GPIO.setmode(mode)
+        Pin.__INITIALIZED__ = True
+
+    @staticmethod
+    def cleanup():
+        GPIO.cleanup()
+        Pin.__INITIALIZED__ = False
 
 
 # class SPI:
