@@ -46,7 +46,9 @@ class Pin:
     OUT: int = GPIO.OUT
     HIGH: int = GPIO.HIGH
     LOW: int = GPIO.LOW
-    IRQ_RISING = None
+    IRQ_RISING = GPIO.RISING
+    IRQ_FALLING = GPIO.FALLING
+    IRQ_BOTH = GPIO.BOTH
 
     def __init__(
         self,
@@ -77,16 +79,18 @@ class Pin:
 
         return GPIO.input(self.pinNumber)
 
-    def irq(trigger, handler: Callable = lambda: None):
+    def set_irq(self, trigger=IRQ_RISING, handler: Callable = lambda: None):
         """Initiate interrupt callback
 
         Args:
             trigger (_type_): signal to trigger an interrupt
             handler (_type_, optional): function to execute when interrupt trips. Defaults to lambda:None.
         """
-        # handler()
-        print("UNINITIALIZED IRQ FUNCTION CALLED.")
-        pass
+        print("UNTESTED IRQ FUNCTION CALLED.")
+        GPIO.add_event_detect(self.pinNumber, trigger, callback=handler)
+
+    def clear_irq(self):
+        GPIO.remove_event_detect(self.pinNumber)
 
     @staticmethod
     def initialize(mode=GPIO.BOARD):
@@ -97,32 +101,6 @@ class Pin:
     def cleanup():
         GPIO.cleanup()
         Pin.__INITIALIZED__ = False
-
-
-# class SPI:
-#     MSB = None
-#     LSB = None
-
-#     def __init__(
-#         self,
-#         baudrate: int = 1000000,
-#         *,
-#         polarity: int = 0,
-#         phase: int = 0,
-#         bits: int = 8,
-#         firstbit=MSB,
-#         sck=None,
-#         mosi=None,
-#         miso=None,
-#         pins: tuple
-#     ) -> None:
-#         pass
-
-#     def write(self):
-#         pass
-
-#     def read(self):
-#         pass
 
 
 SX126X_FREQUENCY_STEP_SIZE = 0.9536743164

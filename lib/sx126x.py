@@ -355,12 +355,10 @@ class SX126X:
         return self.SPIwriteCommand([SX126X_CMD_SET_STANDBY], 1, data, 1)
 
     def setDio1Action(self, func):
-        # try:
-        #     self.irq.callback(trigger=Pin.IRQ_RISING, handler=func)     # Pycom variant uPy
-        # except:
-        self.irq.irq(trigger=Pin.IRQ_RISING, handler=func)  # Generic variant uPy
+        self.irq.set_irq(trigger=Pin.IRQ_RISING, handler=func)
 
     def clearDio1Action(self):
+        self.irq.clear_irq()
         self.irq = Pin(self._irq, direction=Pin.IN)
 
     def startTransmit(self, data, len_, addr=0):
@@ -1515,7 +1513,6 @@ class SX126X:
         if write:
             print("WRITING")
             for i in range(numBytes):
-                # in_ = self.spi.read(1, write=dataOut[i])
                 print(f"OUT:{dataOut[i]} -- ", end="")
                 print(
                     f"OUT_bytes:{dataOut[i].to_bytes(1, byteorder='big', signed=dataOut[i]<0)} -- ",
@@ -1538,7 +1535,6 @@ class SX126X:
                     break
         else:
             print("READING")
-            # in_ = self.spi.read(1, write=SX126X_CMD_NOP)
             print(f"OUT:{SX126X_CMD_NOP} -- ", end="")
             print(
                 f"OUT_bytes:{SX126X_CMD_NOP.to_bytes(1, byteorder='big')} -- ",
@@ -1557,7 +1553,6 @@ class SX126X:
                 status = SX126X_STATUS_SPI_FAILED
             else:
                 for i in range(numBytes):
-                    # dataIn[i] = self.spi.read(1, write=SX126X_CMD_NOP)[0]
                     dataIn[i] = self.spi.transfer(
                         SX126X_CMD_NOP.to_bytes(1, byteorder="big")
                     )[0]
