@@ -1,3 +1,4 @@
+import logging
 from _sx126x import *
 from periphery import SPI
 
@@ -1506,30 +1507,26 @@ class SX126X:
                 self.cs.value(1)
                 return ERR_SPI_CMD_TIMEOUT
 
-        print("\nSTART:")
+        logging.debug("START:")
         for i in range(cmdLen):
-            print(f"OUT:{cmd[i]} -- ", end="")
-            print(
-                f"OUT_bytes:{cmd[i].to_bytes(1, byteorder='big')} -- ",
-                end="",
-            )
-            beginIn_ = self.spi.transfer(cmd[i].to_bytes(1, byteorder="big"))
-            print(f"in_:{beginIn_}")
+            logging.debug(f"OUT:{cmd[i]}")
+            logging.debug(f"OUT_bytes:{cmd[i].to_bytes(1, byteorder='big')}")
+            in_ = self.spi.transfer(cmd[i].to_bytes(1, byteorder="big"))
+            logging.debug(f"in_:{in_}")
 
         status = 0
 
         if write:
-            print("WRITING")
+            logging.debug("WRITING")
             for i in range(numBytes):
-                print(f"OUT:{dataOut[i]} -- ", end="")
-                print(
-                    f"OUT_bytes:{dataOut[i].to_bytes(1, byteorder='big', signed=dataOut[i]<0)} -- ",
-                    end="",
+                logging.debug(f"OUT:{dataOut[i]}")
+                logging.debug(
+                    f"OUT_bytes:{dataOut[i].to_bytes(1, byteorder='big', signed=dataOut[i]<0)}"
                 )
                 in_ = self.spi.transfer(
                     dataOut[i].to_bytes(1, byteorder="big", signed=dataOut[i] < 0)
                 )
-                print(f"in_:{in_}")
+                logging.debug(f"in_:{in_}")
 
                 if (
                     (in_[0] & 0b00001110) == SX126X_STATUS_CMD_TIMEOUT
@@ -1542,14 +1539,11 @@ class SX126X:
                     status = SX126X_STATUS_SPI_FAILED
                     break
         else:
-            print("READING")
-            print(f"OUT:{SX126X_CMD_NOP} -- ", end="")
-            print(
-                f"OUT_bytes:{SX126X_CMD_NOP.to_bytes(1, byteorder='big')} -- ",
-                end="",
-            )
+            logging.debug("READING")
+            logging.debug(f"OUT:{SX126X_CMD_NOP}")
+            logging.debug(f"OUT_bytes:{SX126X_CMD_NOP.to_bytes(1, byteorder='big')}")
             in_ = self.spi.transfer(SX126X_CMD_NOP.to_bytes(1, byteorder="big"))
-            print(f"in_:{in_}")
+            logging.debug(f"in_:{in_}")
 
             if (
                 (in_[0] & 0b00001110) == SX126X_STATUS_CMD_TIMEOUT

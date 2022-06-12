@@ -1,3 +1,4 @@
+import logging
 from time import sleep, monotonic
 from typing import Callable, Union
 import Jetson.GPIO as GPIO
@@ -88,7 +89,7 @@ class Pin:
             handler (function, optional): function called on interrupt trigger. Defaults to lambda:None.
         """
         # TODO: test this
-        print("UNTESTED IRQ FUNCTION CALLED.")
+        logging.debug("UNTESTED IRQ FUNCTION CALLED.")
         GPIO.add_event_detect(self.pinNumber, trigger, callback=handler)
 
     def clear_irq(self):
