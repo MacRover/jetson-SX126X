@@ -1,5 +1,5 @@
 from time import sleep, monotonic
-from typing import Callable, Union, overload
+from typing import Callable, Union
 import Jetson.GPIO as GPIO
 
 _MS_PER_NS = 1000000
@@ -63,31 +63,19 @@ class Pin:
         if Pin.__INITIALIZED__ == False:
             Pin.initialize()
 
-        if self.direction == Pin.IN:
-            GPIO.setup(self.pinNumber, self.direction, initial=self.state)
-        else:
-            GPIO.setup(self.pinNumber, self.direction, initial=self.state)
+        GPIO.setup(self.pinNumber, self.direction, initial=self.state)
 
-    @overload
-    def value(self) -> int:
-        """Get state of pin
-
-        Returns:
-            int: Current state of pin. 1=HIGH, 0=LOW
-        """
-        return GPIO.input(self.pinNumber)
-
-    @overload
-    def value(self, new_state: Union[int, bool]) -> int:
+    def value(self, new_state=None):
         """Set state of pin
 
         Args:
             new_state (Union[int, bool]): desired state of pin
 
         Returns:
-            int: state of pin
+            int: Current state of pin. 1=HIGH, 0=LOW
         """
-        GPIO.output(self.pinNumber, new_state)
+        if new_state is not None:
+            GPIO.output(self.pinNumber, new_state)
         return GPIO.input(self.pinNumber)
 
     def set_irq(
