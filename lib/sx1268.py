@@ -17,8 +17,16 @@ class SX1268(SX126X):
     PREAMBLE_DETECT_32 = SX126X_GFSK_PREAMBLE_DETECT_32
     STATUS = ERROR
 
-    def __init__(self, cs, irq, rst, gpio, clk="P10", mosi="P11", miso="P14"):
-        super().__init__(cs, irq, rst, gpio, clk, mosi, miso)
+    def __init__(
+        self,
+        cs,
+        irq,
+        rst,
+        gpio,
+        device: str = "/dev/spidev3.0",
+        baudrate: int = 2000000,
+    ):
+        super().__init__(cs, irq, rst, gpio, device, baudrate)
         self._callbackFunction = self._dummyFunction
 
     def begin(

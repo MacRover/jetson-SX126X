@@ -3,9 +3,17 @@ from periphery import SPI
 
 
 class SX126X:
-    def __init__(self, cs, irq, rst, gpio, clk="P10", mosi="P11", miso="P14"):
+    def __init__(
+        self,
+        cs,
+        irq,
+        rst,
+        gpio,
+        device: str = "/dev/spidev3.0",
+        baudrate: int = 2000000,
+    ):
         self._irq = irq
-        self.spi = SPI("/dev/spidev3.0", 0, 2000000)
+        self.spi = SPI(device, 0, baudrate)
         self.cs = Pin(cs, direction=Pin.OUT)
         self.irq = Pin(irq, direction=Pin.IN)
         self.rst = Pin(rst, direction=Pin.OUT)

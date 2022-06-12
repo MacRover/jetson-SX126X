@@ -1,7 +1,7 @@
 from sx1262 import *
 
 try:
-    spi_device = SX1262(24, 13, 18, 22, clk=23, mosi=19, miso=21)
+    spi_device = SX1262(24, 13, 18, 22, "/dev/spidev3.0", 2000000)
     spi_device.begin(
         freq=923,
         bw=500.0,

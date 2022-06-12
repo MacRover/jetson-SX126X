@@ -1,5 +1,5 @@
 from time import sleep, monotonic
-from typing import Callable, Union
+from typing import Callable, Union, overload
 import Jetson.GPIO as GPIO
 
 _MS_PER_NS = 1000000
@@ -68,37 +68,58 @@ class Pin:
         else:
             GPIO.setup(self.pinNumber, self.direction, initial=self.state)
 
-    def value(self, new_state=None) -> int:
-        """Set or get state of pin
+    @overload
+    def value(self) -> int:
+        """Get state of pin
 
-        Args:
-            state (Union[int, bool, NoneType], optional): 1=High, 0=Low, None=get current state. Defaults to None.
+        Returns:
+            int: Current state of pin. 1=HIGH, 0=LOW
         """
-        if new_state is not None and self.direction == Pin.OUT:
-            GPIO.output(self.pinNumber, new_state)
-
         return GPIO.input(self.pinNumber)
 
-    def set_irq(self, trigger=IRQ_RISING, handler: Callable = lambda: None):
-        """Initiate interrupt callback
+    @overload
+    def value(self, new_state: Union[int, bool]) -> int:
+        """Set state of pin
 
         Args:
-            trigger (_type_): signal to trigger an interrupt
-            handler (_type_, optional): function to execute when interrupt trips. Defaults to lambda:None.
+            new_state (Union[int, bool]): desired state of pin
+
+        Returns:
+            int: state of pin
         """
+        GPIO.output(self.pinNumber, new_state)
+        return GPIO.input(self.pinNumber)
+
+    def set_irq(
+        self, trigger: int = IRQ_RISING, handler: Callable[..., None] = lambda: None
+    ):
+        """Initialize interrupt callback
+
+        Args:
+            trigger (int, optional): Signal to trigger interrupt on. Defaults to IRQ_RISING.
+            handler (function, optional): function called on interrupt trigger. Defaults to lambda:None.
+        """
+        # TODO: test this
         print("UNTESTED IRQ FUNCTION CALLED.")
         GPIO.add_event_detect(self.pinNumber, trigger, callback=handler)
 
     def clear_irq(self):
+        """Disable configured interrupt"""
         GPIO.remove_event_detect(self.pinNumber)
 
     @staticmethod
-    def initialize(mode=GPIO.BOARD):
+    def initialize(mode: int = GPIO.BOARD):
+        """Manually initialize GPIO library
+
+        Args:
+            mode (int, optional): GPIO pin mode. Defaults to GPIO.BOARD.
+        """
         GPIO.setmode(mode)
         Pin.__INITIALIZED__ = True
 
     @staticmethod
     def cleanup():
+        """De-initialize GPIO library. This function must be called on exit of the program."""
         GPIO.cleanup()
         Pin.__INITIALIZED__ = False
 
