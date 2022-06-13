@@ -1,5 +1,5 @@
-from _sx126x import *
-from sx126x import SX126X
+from ._sx126x import *
+from .sx126x import SX126X
 
 _SX126X_PA_CONFIG_SX1261 = 0x01
 

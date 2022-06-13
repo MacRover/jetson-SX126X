@@ -1,5 +1,5 @@
 import logging
-from _sx126x import *
+from ._sx126x import *
 from periphery import SPI
 
 

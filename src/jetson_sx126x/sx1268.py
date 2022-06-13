@@ -1,10 +1,10 @@
-from _sx126x import *
-from sx126x import SX126X
+from ._sx126x import *
+from .sx126x import SX126X
 
-_SX126X_PA_CONFIG_SX1262 = 0x00
+_SX126X_PA_CONFIG_SX1268 = 0x00
 
 
-class SX1262(SX126X):
+class SX1268(SX126X):
     TX_DONE = SX126X_IRQ_TX_DONE
     RX_DONE = SX126X_IRQ_RX_DONE
     ADDR_FILT_OFF = SX126X_GFSK_ADDRESS_FILT_OFF
@@ -163,20 +163,14 @@ class SX1262(SX126X):
         return state
 
     def setFrequency(self, freq, calibrate=True):
-        if freq < 150.0 or freq > 960.0:
+        if freq < 410.0 or freq > 810.0:
             return ERR_INVALID_FREQUENCY
 
         state = ERR_NONE
 
         if calibrate:
             data = bytearray(2)
-            if freq > 900.0:
-                data[0] = SX126X_CAL_IMG_902_MHZ_1
-                data[1] = SX126X_CAL_IMG_902_MHZ_2
-            elif freq > 850.0:
-                data[0] = SX126X_CAL_IMG_863_MHZ_1
-                data[1] = SX126X_CAL_IMG_863_MHZ_2
-            elif freq > 770.0:
+            if freq > 770.0:
                 data[0] = SX126X_CAL_IMG_779_MHZ_1
                 data[1] = SX126X_CAL_IMG_779_MHZ_2
             elif freq > 460.0:
@@ -199,7 +193,7 @@ class SX1262(SX126X):
         state = super().readRegister(SX126X_REG_OCP_CONFIGURATION, ocp_mv, 1)
         ASSERT(state)
 
-        state = super().setPaConfig(0x04, _SX126X_PA_CONFIG_SX1262)
+        state = super().setPaConfig(0x04, _SX126X_PA_CONFIG_SX1268)
         ASSERT(state)
 
         state = super().setTxParams(power)
