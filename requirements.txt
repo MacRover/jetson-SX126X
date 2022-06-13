@@ -1,2 +1,2 @@
-Jetson.GPIO
-python-periphery
+Jetson.GPIO>=2.0.18
+python-periphery>=2.3.0
