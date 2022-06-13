@@ -1,4 +1,4 @@
-from sx1262 import SX1262
+from jetson_sx126x.sx1262 import SX1262
 import time
 
 sx = SX1262(cs='P5',irq='P6',rst='P7',gpio='P8')

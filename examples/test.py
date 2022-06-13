@@ -1,4 +1,7 @@
-from sx1262 import *
+import logging
+from jetson_sx126x.sx1262 import *
+
+logging.basicConfig(level="DEBUG")
 
 try:
     spi_device = SX1262(24, 13, 18, 22, "/dev/spidev3.0", 2000000)
