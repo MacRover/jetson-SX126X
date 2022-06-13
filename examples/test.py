@@ -1,5 +1,5 @@
 import logging
-from jetson_sx126x.sx1262 import *
+from jetson_sx126x import SX1262, Pin
 
 logging.basicConfig(level="DEBUG")
 

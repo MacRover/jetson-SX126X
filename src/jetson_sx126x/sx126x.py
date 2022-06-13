@@ -1,5 +1,6 @@
 import logging
 from ._sx126x import *
+from .pin import Pin
 from periphery import SPI
 
 

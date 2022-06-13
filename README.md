@@ -3,7 +3,7 @@ Semtech SX126X LoRa driver for Jetson TX2.
 This library is ported and modified from [micropySX126X](https://github.com/ehong-tl/micropySX126X) by ehong-tl.  
 
 ## Constructors (Similar for SX1261 and SX1268)  
-***class*** **sx1262.SX1262(cs, irq, rst, gpio, clk='P10', mosi='P11', miso='P14')**  
+***class*** **sx1262.SX1262(cs, irq, rst, gpio, device='/dev/spidev3.0', baudrate=2000000)**  
 Create and initialize SX1262 object.
 
 The parameters are:  
@@ -11,9 +11,8 @@ The parameters are:
 - irq : DIO1 pin
 - rst : RESET pin
 - gpio : BUSY pin
-- clk : SPI CLK pin
-- mosi : SPI MOSI pin
-- miso : SPI MISO pin
+- device : spidev device path
+- baudrate : SPI bus baud rate
 
 ## Methods (Similar for SX1261 and SX1268)  
 
