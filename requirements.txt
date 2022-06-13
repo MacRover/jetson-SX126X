@@ -1,2 +1,2 @@
 Jetson.GPIO
-periphery
+python-periphery
